@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -80,7 +80,6 @@ export default function InvestmentsPage() {
     // In a real app, you'd fetch the current price from an API
     const currentPrice = data.purchasePrice * (1 + (Math.random() - 0.5) * 0.2);
     addInvestment({
-      id: crypto.randomUUID(),
       ...data,
       currentPrice,
     });
@@ -92,8 +91,16 @@ export default function InvestmentsPage() {
     form.reset();
   };
 
+  // Use a ref to hold the dependencies for the interval callback
+  const contextRef = useRef({ investments, updateInvestmentPrice });
+  useEffect(() => {
+    contextRef.current = { investments, updateInvestmentPrice };
+  }, [investments, updateInvestmentPrice]);
+
   useEffect(() => {
     const interval = setInterval(() => {
+      // Access the latest values from the ref
+      const { investments, updateInvestmentPrice } = contextRef.current;
       investments.forEach((inv) => {
         // Simulate price fluctuation
         const change = (Math.random() - 0.5) * 0.1;
@@ -103,7 +110,7 @@ export default function InvestmentsPage() {
     }, 5000); // Update every 5 seconds
 
     return () => clearInterval(interval);
-  }, [investments, updateInvestmentPrice]);
+  }, []); // Empty dependency array ensures the effect runs only once
 
   const totalValue = investments.reduce(
     (sum, inv) => sum + inv.quantity * inv.currentPrice,

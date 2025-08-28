@@ -12,11 +12,11 @@ import type { Expense, Budget, Investment, Goal } from '@/lib/types';
 
 interface AppContextType {
   expenses: Expense[];
-  addExpense: (expense: Expense) => void;
+  addExpense: (expense: Omit<Expense, 'id'>) => void;
   budgets: Budget[];
   addBudget: (budget: Budget) => void;
   investments: Investment[];
-  addInvestment: (investment: Investment) => void;
+  addInvestment: (investment: Omit<Investment, 'id'>) => void;
   updateInvestmentPrice: (id: string, newPrice: number) => void;
   deleteInvestment: (id: string) => void;
   goals: Goal[];
@@ -88,24 +88,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [expenses, budgets, investments, goals, isLoaded]);
 
-  const addExpense = (expense: Expense) => {
-    setExpenses((prev) => [expense, ...prev]);
+  const addExpense = (expense: Omit<Expense, 'id'>) => {
+    const newExpense = { ...expense, id: crypto.randomUUID() };
+    setExpenses((prev) => [newExpense, ...prev]);
   };
 
   const addBudget = (budget: Budget) => {
     setBudgets((prev) => {
-      const existingIndex = prev.findIndex((b) => b.category === budget.category);
+      const existingIndex = prev.findIndex(
+        (b) => b.category === budget.category
+      );
       if (existingIndex > -1) {
         const updatedBudgets = [...prev];
-        updatedBudgets[existingIndex] = budget;
+        const existingBudget = updatedBudgets[existingIndex];
+        updatedBudgets[existingIndex] = {
+          ...existingBudget,
+          ...budget,
+          id: existingBudget.id, // Explicitly preserve the original id
+        };
         return updatedBudgets;
       }
       return [budget, ...prev];
     });
   };
 
-  const addInvestment = (investment: Investment) => {
-    setInvestments((prev) => [investment, ...prev]);
+  const addInvestment = (investment: Omit<Investment, 'id'>) => {
+    const newInvestment = { ...investment, id: crypto.randomUUID() };
+    setInvestments((prev) => [newInvestment, ...prev]);
   };
 
   const updateInvestmentPrice = (id: string, newPrice: number) => {

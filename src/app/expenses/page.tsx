@@ -78,7 +78,6 @@ export default function ExpensesPage() {
 
   const onSubmit = (data: ExpenseFormData) => {
     addExpense({
-      id: crypto.randomUUID(),
       ...data,
       date: data.date.toISOString(),
     });
