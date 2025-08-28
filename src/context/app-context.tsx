@@ -7,6 +7,7 @@ import {
   useState,
   useEffect,
   ReactNode,
+  useCallback,
 } from 'react';
 import type { Expense, Budget, Investment, Goal } from '@/lib/types';
 
@@ -88,11 +89,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [expenses, budgets, investments, goals, isLoaded]);
 
-  const addExpense = (expense: Expense) => {
+  const addExpense = useCallback((expense: Expense) => {
     setExpenses((prev) => [expense, ...prev]);
-  };
+  }, []);
 
-  const addBudget = (budget: Budget) => {
+  const addBudget = useCallback((budget: Budget) => {
     setBudgets((prev) => {
       const existingIndex = prev.findIndex((b) => b.category === budget.category);
       if (existingIndex > -1) {
@@ -102,27 +103,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       return [budget, ...prev];
     });
-  };
+  }, []);
 
-  const addInvestment = (investment: Investment) => {
+  const addInvestment = useCallback((investment: Investment) => {
     setInvestments((prev) => [investment, ...prev]);
-  };
+  }, []);
 
-  const updateInvestmentPrice = (id: string, newPrice: number) => {
+  const updateInvestmentPrice = useCallback((id: string, newPrice: number) => {
     setInvestments((prev) => prev.map(inv => inv.id === id ? {...inv, currentPrice: newPrice} : inv));
-  };
+  }, []);
   
-  const deleteInvestment = (id: string) => {
+  const deleteInvestment = useCallback((id: string) => {
     setInvestments(prev => prev.filter(inv => inv.id !== id));
-  }
+  }, [])
 
-  const addGoal = (goal: Goal) => {
+  const addGoal = useCallback((goal: Goal) => {
     setGoals((prev) => [goal, ...prev]);
-  };
+  }, []);
 
-  const deleteGoal = (id: string) => {
+  const deleteGoal = useCallback((id: string) => {
     setGoals(prev => prev.filter(g => g.id !== id));
-  }
+  }, [])
 
   const value = {
     expenses,

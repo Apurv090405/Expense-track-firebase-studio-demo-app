@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -92,9 +92,14 @@ export default function InvestmentsPage() {
     form.reset();
   };
 
+  const investmentsRef = useRef(investments);
+  useEffect(() => {
+    investmentsRef.current = investments;
+  }, [investments]);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      investments.forEach((inv) => {
+      investmentsRef.current.forEach((inv) => {
         // Simulate price fluctuation
         const change = (Math.random() - 0.5) * 0.1;
         const newPrice = Math.max(0, inv.currentPrice * (1 + change));
@@ -103,7 +108,7 @@ export default function InvestmentsPage() {
     }, 5000); // Update every 5 seconds
 
     return () => clearInterval(interval);
-  }, [investments, updateInvestmentPrice]);
+  }, [updateInvestmentPrice]);
 
   const totalValue = investments.reduce(
     (sum, inv) => sum + inv.quantity * inv.currentPrice,
